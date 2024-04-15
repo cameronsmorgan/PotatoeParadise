@@ -28,7 +28,7 @@ public class Grid : MonoBehaviour
 
     private Dictionary<PieceType, GameObject> piecePrefabDict;
 
-    private GameObject[,] pieces;
+    private GamePiece[,] pieces;
 
     // Start is called before the first frame update
     void Start()
@@ -52,14 +52,26 @@ public class Grid : MonoBehaviour
             }
         }
 
-        pieces = new GameObject[xDim, xDim];
+        pieces = new GamePiece[xDim, xDim];
         for(int x = 0; x < xDim; x++)
         {
             for(int y = 0; y < yDim; y++)
             {
-                pieces[x, y] = (GameObject)Instantiate(piecePrefabDict[PieceType.NORMAL], GetWorldPosition(x, y), Quaternion.identity);
-                pieces[x,y].name = "Piece(" + x + ", " + y + ")";
-                pieces[x, y].transform.parent = transform;
+                GameObject newPiece = (GameObject)Instantiate(piecePrefabDict[PieceType.NORMAL], Vector3.zero, Quaternion.identity);
+                newPiece.name = "Piece(" + x + ", " + y + ")";
+                newPiece.transform.parent = transform;
+
+                pieces[x,y] = newPiece.GetComponent<GamePiece>();
+                pieces[x, y].Init(x, y, this, PieceType.NORMAL);
+
+                if (pieces[x,y].isMoveable())
+                {
+                    pieces[x, y].MoveableComponent.Move(x, y);
+                }
+                if (pieces[x, y].IsColored())
+                {
+                    pieces[x, y].ColorComponent.SetColor((ColorPiece.ColorType)Random.Range(0, pieces[x, y].ColorComponent.NumColors));
+                }
             }
         }
     }
@@ -70,7 +82,7 @@ public class Grid : MonoBehaviour
         
     }
 
-    Vector2 GetWorldPosition(int x, int y)
+   public Vector2 GetWorldPosition(int x, int y)
     {
         return new Vector2(transform.position.x - xDim / 2.0f + x,
             transform.position.y + yDim / 2.0f - y);
