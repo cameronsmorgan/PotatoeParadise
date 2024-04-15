@@ -96,4 +96,19 @@ public class GamePiece : MonoBehaviour
     {
         return colorComponent != null;
     }
+
+    private void OnMouseEnter()
+    {
+        grid.EnterPiece(this);
+    }
+
+    private void OnMouseDown()
+    {
+        grid.PressPiece(this);
+    }
+
+    void OnMouseUp()
+    {
+        grid.ReleasePiece();
+    }
 }
