@@ -7,6 +7,7 @@ public class Grid : MonoBehaviour
 {
     public enum PieceType
     {
+        EMPTY,
         NORMAL,
         COUNT,
     };
@@ -57,23 +58,11 @@ public class Grid : MonoBehaviour
         {
             for(int y = 0; y < yDim; y++)
             {
-                GameObject newPiece = (GameObject)Instantiate(piecePrefabDict[PieceType.NORMAL], Vector3.zero, Quaternion.identity);
-                newPiece.name = "Piece(" + x + ", " + y + ")";
-                newPiece.transform.parent = transform;
-
-                pieces[x,y] = newPiece.GetComponent<GamePiece>();
-                pieces[x, y].Init(x, y, this, PieceType.NORMAL);
-
-                if (pieces[x,y].isMoveable())
-                {
-                    pieces[x, y].MoveableComponent.Move(x, y);
-                }
-                if (pieces[x, y].IsColored())
-                {
-                    pieces[x, y].ColorComponent.SetColor((ColorPiece.ColorType)Random.Range(0, pieces[x, y].ColorComponent.NumColors));
-                }
+                SpawnNewPiece(x, y, PieceType.EMPTY);
             }
         }
+
+        Fill();
     }
 
     // Update is called once per frame
@@ -82,9 +71,71 @@ public class Grid : MonoBehaviour
         
     }
 
+    public void Fill()
+    {
+        while(FillStep())
+        {
+
+        }
+    }
+
+    public bool FillStep()
+    {
+        bool movedPiece = false;
+
+        for(int y = yDim - 2; y>= 0; y--)
+        {
+            for(int x = 0; x< xDim; x++)
+            {
+                GamePiece piece = pieces[x, y];
+                if(piece.isMoveable())
+                {
+                    GamePiece pieceBelow = pieces[x, y + 1];
+
+                    if(pieceBelow.Type == PieceType.EMPTY)
+                    {
+                        piece.MoveableComponent.Move(x, y + 1);
+                        pieces[x, y + 1] = piece;
+                        SpawnNewPiece(x, y, PieceType.EMPTY);
+                        movedPiece= true;
+                    }
+                }
+            }
+        }
+        for(int x =0; x<xDim ; x++)
+        {
+            GamePiece pieceBelow = pieces[x, 0];
+
+            if(pieceBelow.Type == PieceType.EMPTY)
+            {
+                GameObject newPiece = (GameObject)Instantiate(piecePrefabDict[PieceType.NORMAL], GetWorldPosition(x, -1), Quaternion.identity);
+                newPiece.transform.parent = transform;
+
+                pieces[x, 0] = newPiece.GetComponent<GamePiece>();
+                pieces[x, 0].Init(x, -1, this, PieceType.NORMAL);
+                pieces[x, 0].MoveableComponent.Move(x, 0);
+                pieces[x, 0].ColorComponent.SetColor((ColorPiece.ColorType)Random.Range(0, pieces[x, 0].ColorComponent.NumColors));
+                movedPiece= true;
+            }
+        }
+
+        return movedPiece;
+    }
+
    public Vector2 GetWorldPosition(int x, int y)
     {
         return new Vector2(transform.position.x - xDim / 2.0f + x,
             transform.position.y + yDim / 2.0f - y);
+    }
+
+    public GamePiece SpawnNewPiece(int x, int y, PieceType type)
+    {
+        GameObject newPiece = (GameObject)Instantiate(piecePrefabDict[type], GetWorldPosition(x, y), Quaternion.identity);
+        newPiece.transform.parent = transform;
+
+        pieces[x,y] = newPiece.GetComponent<GamePiece>();
+        pieces[x, y].Init(x, y, this, type);
+
+        return pieces[x, y];
     }
 }
