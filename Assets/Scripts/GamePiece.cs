@@ -59,11 +59,19 @@ public class GamePiece : MonoBehaviour
         get { return colorComponent; }
     }
 
+    private ClearablePiece clearableComponent;
+
+    public ClearablePiece ClearableComponent
+    {
+        get { return clearableComponent; }
+    }
+
 
     private void Awake()
     {
         moveableComponent = GetComponent<MoveablePiece>();
         colorComponent = GetComponent<ColorPiece>();
+        clearableComponent = GetComponent<ClearablePiece>();
     }
 
     // Start is called before the first frame update
@@ -95,6 +103,11 @@ public class GamePiece : MonoBehaviour
     public bool IsColored()
     {
         return colorComponent != null;
+    }
+
+    public bool isClearable()
+    {
+        return clearableComponent != null;
     }
 
     private void OnMouseEnter()
