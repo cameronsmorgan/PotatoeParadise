@@ -22,9 +22,11 @@ public class Grid : MonoBehaviour
     }
 
 
-    public int xDim;
-    public int yDim;
+    public int xDim = 5;
+    public int yDim =5;
     public float fillTime;
+
+    public Level level;
 
     public PiecePrefab[] piecePrefabs;
     public GameObject backgroundPrefab;
@@ -37,6 +39,8 @@ public class Grid : MonoBehaviour
 
     private GamePiece pressedPiece;
     private GamePiece enteredPiece;
+
+    private bool gameOver = false;
 
     // Start is called before the first frame update
     void Start()
@@ -69,35 +73,12 @@ public class Grid : MonoBehaviour
             }
         }
 
-        Destroy(pieces[1, 4].gameObject);
-        SpawnNewPiece(1, 4, PieceType.BUBBLE);
 
-        Destroy(pieces[2, 4].gameObject);
-        SpawnNewPiece(2, 4, PieceType.BUBBLE);
-
-        Destroy(pieces[3, 4].gameObject);
-        SpawnNewPiece(3, 4, PieceType.BUBBLE);
-
-        Destroy(pieces[5, 4].gameObject);
-        SpawnNewPiece(5, 4, PieceType.BUBBLE);
-
-        Destroy(pieces[6, 4].gameObject);
-        SpawnNewPiece(6, 4, PieceType.BUBBLE);
-
-        Destroy(pieces[7, 4].gameObject);
-        SpawnNewPiece(7, 4, PieceType.BUBBLE);
-
-        Destroy(pieces[4, 0].gameObject);
-        SpawnNewPiece(4, 0, PieceType.BUBBLE);
 
        StartCoroutine( Fill());
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
 
     public IEnumerator Fill()
     {
@@ -243,6 +224,11 @@ public class Grid : MonoBehaviour
 
     public void SwapPieces(GamePiece piece1, GamePiece piece2)
     {
+        if(gameOver)
+        {
+            return;
+        }
+
         if(piece1.isMoveable() && piece2.isMoveable())
         {
             pieces[piece1.X, piece1.Y] = piece2;
@@ -259,6 +245,7 @@ public class Grid : MonoBehaviour
                 ClearAllValidMatches();
 
                 StartCoroutine(Fill());
+                level.OnMove();
             }
             else
             {
@@ -565,5 +552,10 @@ public class Grid : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void GameOver()
+    {
+        gameOver= true;
     }
 }
