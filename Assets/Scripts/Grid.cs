@@ -101,20 +101,10 @@ public class Grid : MonoBehaviour
 
     public IEnumerator Fill()
     {
-        bool needsRefill = true;
-
-        while(needsRefill)
+        while(FillStep())
         {
+            inverse = !inverse;
             yield return new WaitForSeconds(fillTime);
-
-            while (FillStep())
-            {
-
-                inverse = !inverse;
-                yield return new WaitForSeconds(fillTime);
-            }
-
-            needsRefill = ClearAllValidMatches();
         }
     }
 
@@ -255,10 +245,6 @@ public class Grid : MonoBehaviour
 
                 piece1.MoveableComponent.Move(piece2.X, piece2.Y, fillTime);
                 piece2.MoveableComponent.Move(piece1X, piece1Y, fillTime);
-
-                ClearAllValidMatches();
-
-                StartCoroutine(Fill());
             }
             else
             {
@@ -494,76 +480,5 @@ public class Grid : MonoBehaviour
         }
 
         return null;
-    }
-
-    public bool ClearAllValidMatches()
-    {
-        bool needsRefill = false;
-
-        for(int y = 0; y<yDim; y++)
-        {
-            for(int x = 0; x< xDim; x++)
-            {
-                if (pieces[x,y].isClearable())
-                {
-                    List<GamePiece> match = GetMatch(pieces[x, y], x, y);
-
-                    if (match != null)
-                    {
-                        for(int i =0; i < match.Count; i++)
-                        {
-                            if (ClearPiece(match[i].X, match[i].Y))
-                            {
-                                needsRefill= true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return needsRefill;
-    }
-
-    public bool ClearPiece(int x, int y)
-    {
-        if (pieces[x,y].isClearable() && !pieces[x,y].ClearableComponent.IsBeingCleared)
-        {
-            pieces[x, y].ClearableComponent.Clear();
-            SpawnNewPiece(x, y, PieceType.EMPTY);
-
-            ClearObstacles(x, y);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public void ClearObstacles(int x, int y)
-    {
-        for(int adjacentX = x-1; adjacentX <= x+1; adjacentX++)
-        {
-            if(adjacentX!=x && adjacentX >= 0 && adjacentX < xDim)
-            {
-                if (pieces[adjacentX, y].Type == PieceType.BUBBLE && pieces[adjacentX, y].isClearable())
-                {
-                    pieces[adjacentX, y]. ClearableComponent.Clear();
-                    SpawnNewPiece(adjacentX, y, PieceType.EMPTY);
-                }
-            }
-        }
-
-        for(int adjacentY = y - 1; adjacentY <= y + 1; adjacentY++)
-        {
-            if(adjacentY != y && adjacentY >= 0 && adjacentY < yDim)
-            {
-                if (pieces[x, adjacentY].Type == PieceType.BUBBLE&& pieces[x, adjacentY].isClearable())
-                {
-                    pieces[x, adjacentY].ClearableComponent.Clear();
-                    SpawnNewPiece(x, adjacentY, PieceType.EMPTY);
-                }
-            }
-        }
     }
 }
