@@ -14,7 +14,10 @@ public class LevelMoves : Level
     {
         type = LevelType.MOVES;
 
-        Debug.Log("Number of moves:" + numMoves + "Target score: " + targetScore);
+        hud.SetLevelType(type);
+        hud.SetScore(currentScore);
+        hud.SetTarget(targetScore);
+        hud.SetRemaining(numMoves);
     }
 
     // Update is called once per frame
@@ -27,8 +30,7 @@ public class LevelMoves : Level
     {
         movesUsed++;
 
-        Debug.Log("Moves remaining:" + (numMoves - movesUsed));
-
+        hud.SetRemaining(numMoves - movesUsed);
         if(numMoves - movesUsed == 0)
         {
             if(currentScore >= targetScore)

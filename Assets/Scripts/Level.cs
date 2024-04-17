@@ -14,6 +14,8 @@ public class Level : MonoBehaviour
 
     public Grid grid;
 
+    public HUD hud;
+
     public int score1Star;
     public int score2Star;
     public int score3Star;
@@ -30,7 +32,9 @@ public class Level : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
+        hud.SetScore(currentScore);
+
     }
 
     // Update is called once per frame
@@ -42,12 +46,14 @@ public class Level : MonoBehaviour
     public virtual void GameWin()
     {
         Debug.Log("You Win!");
+        hud.OnGameWin(currentScore);
         grid.GameOver();
     }
 
     public virtual void GameLose()
     {
         Debug.Log("You lose.");
+        hud.OnGameLose();
         grid.GameOver();
     }
 
@@ -59,6 +65,6 @@ public class Level : MonoBehaviour
     public virtual void OnPieceCleared(GamePiece piece)
     {
         currentScore += piece.score;
-        Debug.Log("Score:" + currentScore);
+        hud.SetScore(currentScore);
     }
 }
